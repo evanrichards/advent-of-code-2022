@@ -1,5 +1,7 @@
 import click
+import pyperclip
 import day1.day1 as day1
+from colorama import Fore, Style
 
 
 @click.command()
@@ -16,9 +18,15 @@ import day1.day1 as day1
     help="Input file",
 )
 def main(day, part, input):
-    """Run the solution for the given day and part."""
+    click.echo(f"Day {day}, part {part}, input {input}")
     if day == 1:
-        day1.main(part, input)
+        result = day1.main(part, input)
+    else:
+        raise NotImplementedError(f"Day {day} not implemented yet")
+    pyperclip.copy(result)
+    click.echo(
+        f'{Fore.GREEN}Result{Style.RESET_ALL}: {Style.DIM}"{Style.RESET_ALL}{ result }{Style.DIM}" (Copied to clipboard){Style.RESET_ALL}'
+    )
 
 
 if __name__ == "__main__":
