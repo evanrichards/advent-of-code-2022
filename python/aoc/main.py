@@ -1,6 +1,7 @@
 import click
 import pyperclip
 import day1.day1 as day1
+import day2.day2 as day2
 from colorama import Fore, Style
 
 
@@ -13,10 +14,12 @@ from colorama import Fore, Style
     default="example",
     help="Input file",
 )
-def main(day, part, input):
+def main(day: int, part: int, input: str) -> None:
     click.echo(f"Day {day}, part {part}, input {input}")
     if day == 1:
         result = day1.main(part, input)
+    elif day == 2:
+        result = day2.main(part, input)
     else:
         raise NotImplementedError(f"Day {day} not implemented yet")
     pyperclip.copy(result)

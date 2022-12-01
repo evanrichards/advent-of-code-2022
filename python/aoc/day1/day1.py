@@ -1,11 +1,11 @@
 from read_input_common import read_input_common
 
 
-def read_day_input(input):
+def read_day_input(input: str) -> str:
     return read_input_common(1, input)
 
 
-def main(part, input):
+def main(part: int, input: str) -> int:
     raw_data = read_day_input(input)
     per_elf = raw_data.split("\n\n")
     per_elf_totals = map(parse_elf_total, per_elf)
@@ -16,5 +16,5 @@ def main(part, input):
         return sum(most_elf[:3])
 
 
-def parse_elf_total(elf):
+def parse_elf_total(elf: str) -> int:
     return sum(map(int, elf.split()))
