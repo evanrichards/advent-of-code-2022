@@ -18,42 +18,45 @@ def main(part: int, input: str) -> int:
     return score
 
 
-def parse_strategy(strategy_raw: str, part: int) -> list[int]:
+def parse_strategy(strategy_raw: str, part: int) -> list[(int, int)]:
     strategy = []
     for line in strategy_raw.splitlines():
-        op_shape, my_shape = line.split(" ")
+        op_shape_str, my_shape_str = line.split(" ")
         if part == 1:
-            strategy.append((op_shape(op_shape), my_shape(my_shape)))
+            strategy.append((op_shape(op_shape_str), my_shape(my_shape_str)))
         elif part == 2:
             strategy.append(
                 (
-                    op_shape(op_shape),
-                    (op_shape(op_shape) + my_shape(my_shape) - 1) % 3,
+                    op_shape(op_shape_str),
+                    (op_shape(op_shape_str) + my_shape(my_shape_str) - 1) % 3,
                 )
             )
     return strategy
 
 
-def calculate_score(strategy: list) -> int:
+def calculate_score(strategy: list[(int, int)]) -> int:
     return sum(map(calculate_round_score, strategy))
 
 
-def calculate_round_score(round: list[int]) -> int:
+def calculate_round_score(round: (int, int)) -> int:
     op_shape, my_shape = round
     return round_outcome(op_shape, my_shape) + shape_score(my_shape)
 
 
-def round_outcome(opponent: int, me: int) -> int:
-    return outcomes[(opponent - me) % 3]
+def round_outcome(op_shape: int, my_shape: int) -> int:
+    return outcomes[(op_shape - my_shape) % 3]
 
 
 def shape_score(shape: int) -> int:
     return shape + 1
 
 
+a_ord, x_ord = ord("A"), ord("X")
+
+
 def op_shape(letter: str) -> int:
-    return ord(letter) - ord("A")
+    return ord(letter) - a_ord
 
 
 def my_shape(letter: str) -> int:
-    return ord(letter) - ord("X")
+    return ord(letter) - x_ord
