@@ -1,4 +1,5 @@
 from read_input_common import read_input_common
+from functools import reduce
 
 
 def read_day_input(input: str) -> str:
@@ -12,6 +13,7 @@ def main(part: int, input: str) -> int:
     priorities = [
         [letter_to_priority(letter) for letter in list(line)] for line in lines
     ]
+
     if part == 1:
         # split into two lists by halving the list
         splits = map(split_list, priorities)
@@ -22,14 +24,9 @@ def main(part: int, input: str) -> int:
 
 
 def find_duplicates(lines: list[list[int]]) -> None:
-    for line in lines:
-        line.sort()
-    first = set(lines[0])
-    rest = lines[1:]
-    intersection = first
-    for line in rest:
-        intersection = intersection.intersection(line)
-    return intersection.pop()
+    nums = [reduce(lambda acc, curr: acc | 1 << curr, line, 0) for line in lines]
+    out = reduce(lambda acc, curr: acc & curr, nums)
+    return list(reversed(bin(out))).index("1")
 
 
 def split_list(priorities: list[int]) -> tuple[list[int], list[int]]:
