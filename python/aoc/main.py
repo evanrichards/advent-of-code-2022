@@ -4,6 +4,7 @@ import day1.day1 as day1
 import day2.day2 as day2
 import day3.day3 as day3
 import day4.day4 as day4
+import day5.day5 as day5
 from colorama import Fore, Style
 
 
@@ -26,6 +27,8 @@ def main(day: int, part: int, input: str) -> None:
         result = day3.main(part, input)
     elif day == 4:
         result = day4.main(part, input)
+    elif day == 5:
+        result = day5.main(part, input)
     else:
         raise NotImplementedError(f"Day {day} not implemented yet")
     pyperclip.copy(result)
