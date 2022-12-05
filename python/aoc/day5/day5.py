@@ -1,5 +1,6 @@
 from read_input_common import read_input_common
 import re
+from functools import reduce
 
 """
     [D]
@@ -12,6 +13,7 @@ move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2
 """
+MOVE_PARSE_PATTERN = r"move (\d+) from (\d+) to (\d+)"
 
 
 def read_day_input(input: str) -> str:
@@ -24,37 +26,34 @@ def main(part: int, input: str) -> int:
     initial_state = parse_initial_state(state)
     moves = parse_moves(moves, part)
     new_state = apply_moves(initial_state, moves)
-    return "".join(list(map(lambda x: x[-1], new_state)))
+    return "".join(map(lambda x: x[-1], new_state))
 
 
 def apply_moves(state: list, moves: list) -> list:
-    applied_state = state
-    for num_boxes, from_box, to_box in moves:
-        applied_state = apply_move(applied_state, num_boxes, from_box, to_box)
-    return applied_state
+    return reduce(
+        lambda applied_state, inputs: apply_move(applied_state, *inputs), moves, state
+    )
 
 
 def apply_move(state: list, num_boxes: int, from_box: int, to_box: int) -> list:
-    items = state[from_box - 1][-num_boxes:]
-    state[from_box - 1] = state[from_box - 1][:-num_boxes]
-    # add it to the to_box
-    state[to_box - 1] += items
+    remaining, moved = (
+        state[from_box - 1][:-num_boxes],
+        state[from_box - 1][-num_boxes:],
+    )
+    state[from_box - 1] = remaining
+    state[to_box - 1] += moved
     return state
 
 
 def parse_moves(moves: str, part: int) -> list:
     move_lines = moves.splitlines()
-    nested_moves = list(map(lambda x: parse_move(x, part), move_lines))
+    nested_moves = map(lambda x: parse_move(x, part), move_lines)
     return [item for sublist in nested_moves for item in sublist]
 
 
 def parse_move(move: str, part: int) -> tuple:
-    # Parse regex for "move 1 from 2 to 1"
-    regex = r"move (\d+) from (\d+) to (\d+)"
-    match = re.match(regex, move)
-    if match is None:
-        raise Exception(f"Invalid move: {move}")
-    num, from_box, to_box = list(map(int, match.groups()))
+    match = re.match(MOVE_PARSE_PATTERN, move)
+    num, from_box, to_box = map(int, match.groups())
     if part == 1:
         return [(1, from_box, to_box) for _ in range(num)]
     else:
@@ -63,7 +62,6 @@ def parse_move(move: str, part: int) -> tuple:
 
 def parse_initial_state(state: str) -> list:
     lines = state.splitlines()
-    # group by every 4 characters
     boxes = list(map(group_by_box, lines[:-1]))
     # rotate 90 degrees
     boxes.reverse()
@@ -77,11 +75,4 @@ def parse_initial_state(state: str) -> list:
 
 
 def group_by_box(line: str) -> list:
-    result = []
-    for i in range(0, len(line), 4):
-        box_name = line[i + 1]
-        if box_name == " ":
-            result.append(None)
-        else:
-            result.append(box_name)
-    return result
+    return [line[i] if line[i] != " " else None for i in range(1, len(line), 4)]
