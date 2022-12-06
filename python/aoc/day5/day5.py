@@ -1,6 +1,7 @@
-from read_input_common import read_input_common
 import re
 from functools import reduce
+
+from read_input_common import read_input_common
 
 """
     [D]
