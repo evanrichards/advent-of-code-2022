@@ -7,7 +7,7 @@ def read_day_input(input: str) -> str:
 
 def main(part: int, input: str) -> int:
     raw = read_day_input(input)
-    instructions = parse_output(raw)
+    instructions = [line.split(" ") for line in raw.splitlines()]
     (tree, dirs) = recreate_tree_from_instructions(instructions)
     if part == 1:
         return sum(filter(lambda x: x < 100000, map(calc_dir_size, dirs.values())))
@@ -41,57 +41,29 @@ def recreate_tree_from_instructions(instructions):
     dirs = {}
     current_node = tree
     for instruction in instructions:
-        if instruction[0] == "cd":
-            destination = instruction[1]
-            if destination == -1:
-                current_node = node_stack.pop()
-            else:
-                node_stack.append(current_node)
-                current_node = current_node["dirs"][destination]
-        elif instruction[0] == "home":
-            current_node = tree
-            node_stack = []
-        elif instruction[0] == "file":
-            current_node["files"][instruction[1]] = instruction[2]
-        elif instruction[0] == "dir":
-            dir_name = instruction[1]
-            if dir_name not in current_node["dirs"]:
-                unique_name = "/".join([current_node["name"], dir_name])
-                new_dir = {
-                    "files": {},
-                    "dirs": {},
-                    "name": unique_name,
-                }
-                current_node["dirs"][dir_name] = new_dir
-                dirs[unique_name] = new_dir
-    return (tree, dirs)
-
-
-def parse_output(input: str) -> tuple:
-    lines = input.splitlines()
-    instructions = []
-    for line in lines:
-        words = line.split(" ")
-        if words[0] == "$":
-            instruction = parse_cmd(words)
+        if instruction[0] == "$":
+            if instruction[1] == "cd":
+                destination = instruction[2]
+                if destination == "..":
+                    current_node = node_stack.pop()
+                elif destination == "/":
+                    current_node = tree
+                    node_stack = []
+                else:
+                    node_stack.append(current_node)
+                    current_node = current_node["dirs"][destination]
         else:
-            instruction = parse_ls(words)
-        instructions.append(instruction)
-    return instructions
-
-
-def parse_cmd(words: list) -> tuple:
-    if words[1] == "cd":
-        if words[2] == "/":
-            return "home"
-        if words[2] == "..":
-            return ("cd", -1)
-        return ("cd", words[2])
-    if words[1] == "ls":
-        return "ls"
-
-
-def parse_ls(words: list) -> tuple:
-    if words[0] == "dir":
-        return ("dir", words[1])
-    return ("file", words[1], int(words[0]))
+            if instruction[0] == "dir":
+                dir_name = instruction[1]
+                if dir_name not in current_node["dirs"]:
+                    unique_name = "/".join([current_node["name"], dir_name])
+                    new_dir = {
+                        "files": {},
+                        "dirs": {},
+                        "name": unique_name,
+                    }
+                    current_node["dirs"][dir_name] = new_dir
+                    dirs[unique_name] = new_dir
+            else:
+                current_node["files"][instruction[1]] = int(instruction[0])
+    return (tree, dirs)
